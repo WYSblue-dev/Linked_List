@@ -20,6 +20,7 @@ class Node:
     def __init__(self, data):
         self.data = data
         self.next = None
+        self.prev = None
 
 
 class LinkedList:
@@ -27,89 +28,163 @@ class LinkedList:
 
     def __init__(self):
         self.head = None
-
-    # ---- provided methods (do not modify) ----
+        self.tail = None
 
     def insert_at_end(self, data):
+        """Insert a new node at the end of the list.
+
+        Time: O(1) because we maintain self.tail.
+
+        Space: O(1)
+
+        """
+
         new_node = Node(data)
+
+        # Empty list case
+
         if not self.head:
+
             self.head = new_node
+
+            self.tail = new_node
+
             return
-        current = self.head
-        while current.next:
-            current = current.next
-        current.next = new_node
+
+        # Current tail points forward to the new node
+
+        self.tail.next = new_node
+
+        # New node points backward to the old tail
+
+        new_node.prev = self.tail
+
+        # Move the tail pointer to the new node
+
+        self.tail = new_node
 
     def display(self):
+        """Print the list from head to tail.
+
+        Time: O(n)
+
+        Space: O(1)
+
+        """
+
         current = self.head
+
         while current:
-            print(current.data, end=" -> ")
+
+            print(current.data, end=" <-> ")
+
             current = current.next
+
         print("None")
 
-    # ---- methods to implement ----
+    def display_reverse(self):
+        """Print the list from tail to head without converting to a Python list.
+
+        Time: O(n)
+
+        Space: O(1)
+
+        """
+
+        current = self.tail
+
+        while current:
+
+            print(current.data, end=" <-> ")
+
+            current = current.prev
+
+        print("None")
 
     def delete(self, target):
         """Remove the FIRST node whose data equals target.
 
-        Returns True if found and deleted, False if target wasn't in the list.
+        Returns True if found and deleted, False otherwise.
 
-        Hint: You need a reference to the node BEFORE the one you're deleting
-        so you can re-link the chain. Handle the special case where the head
-        itself is the target.
-        Time: O(n)  Space: O(1)
+        Time: O(n), because we still may need to search the list.
+
+        Space: O(1)
+
         """
+
         current = self.head
-        previous = None
-        # runs while value at next
+
         while current:
-            # conditional statement to see if correct value
+
             if current.data == target:
-                # preivious is a obj value through loop otherwise None(head)
-                if previous is None:
-                    # deleting the head node and set to next
+
+                # Case 1: deleting the head
+
+                if current.prev is None:
+
                     self.head = current.next
+
                 else:
-                    # set the value of next of previous to next value
-                    previous.next = current.next
+
+                    current.prev.next = current.next
+
+                # Case 2: deleting the tail
+
+                if current.next is None:
+
+                    self.tail = current.prev
+
+                else:
+
+                    current.next.prev = current.prev
+
                 return True
-            # assign previous name value to the current of the while loop
-            previous = current
-            # reassign value to current next value
+
             current = current.next
+
         return False
-        # TODO: implement delete
 
     def length(self):
         """Return the number of nodes in the list.
-        Time: O(n)  Space: O(1)
+
+        Time: O(n)
+
+        Space: O(1)
+
         """
+
         count = 0
+
         current = self.head
+
         while current:
+
             count += 1
+
             current = current.next
+
         return count
 
-        # TODO: walk the list and count nodes
-
     def to_list(self):
-        """Convert the linked list to a plain Python list and return it.
+        """Convert the linked list to a Python list.
 
-        Time: O(n)  Space: O(n)
+        Time: O(n)
+
+        Space: O(n)
+
         """
-        # TODO: walk the list, append each node's data, return the list
+
+        result = []
+
         current = self.head
-        stacked_python = []
-        # loop through nodes(data points)
+
         while current:
-            # add the point to new list.
-            stacked_python.append(current.data)
-            # update the current point to next
+
+            result.append(current.data)
+
             current = current.next
 
-        # return data outside of loop
-        return stacked_python
+        return result
 
 
 # ============================================================
@@ -233,3 +308,37 @@ if __name__ == "__main__":
 
     result = processor.process_next()  # queue empty
     print(f"  Empty queue returns: {result}")  # should be None
+
+
+# test the doublylinked list
+if __name__ == "__main__":
+    ll = LinkedList()
+
+    for value in [10, 20, 30, 40, 50]:
+        ll.insert_at_end(value)
+
+    print("Forward: ", end="")
+    ll.display()
+
+    print("Reverse: ", end="")
+    ll.display_reverse()
+
+    print(f"Length: {ll.length()}")
+    print(f"As Python list: {ll.to_list()}")
+
+    ll.delete(30)
+    print("After delete(30): ", end="")
+    ll.display()
+
+    ll.delete(10)
+    print("After delete(10) [head]: ", end="")
+    ll.display()
+
+    ll.delete(50)
+    print("After delete(50) [tail]: ", end="")
+    ll.display()
+
+    print("Reverse after deletes: ", end="")
+    ll.display_reverse()
+
+    print(f"delete(99) returned: {ll.delete(99)}")
